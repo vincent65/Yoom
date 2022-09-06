@@ -11,7 +11,11 @@ app.set("view engine", "ejs");
 
 //Video Chat and Audio communication and streaming
 //socket.io import; allows to do real time communication between web clients and servers
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+    cors: {
+      origin: '*'
+    }
+  });
 //PeerJS allows us to implement  WebRTC: real time communication via API
 const {ExpressPeerServer} = require("peer");
 const peerServer = ExpressPeerServer(server, {
@@ -34,12 +38,13 @@ app.get("/:room", (req, res) => {
   
 
 //listen for a join-room event and send user to the room
-io.on("connection", (socket)=>{
-    socket.on("join-room", (roomId, userId)=>{
-        socket.join(roomId);
-        socket.to(roomId).broadcast.emit("user-connected", user-Id);
+io.on("connection", (socket) => {
+    socket.on("join-room", (roomId, userId, userName) => {
+      socket.join(roomId);
+      socket.to(roomId).broadcast.emit("user-connected", userId);
+      socket.on("message", (message) => {
+        io.to(roomId).emit("createMessage", message, userName);
+      });
     });
-});
-
-server.listen(3000);
-
+  });
+  server.listen(process.env.PORT || 3000);
