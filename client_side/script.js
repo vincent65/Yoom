@@ -1,5 +1,4 @@
-//client side video streaming code
-
+// //client side video streaming code
 const socket = io("/");
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
@@ -7,29 +6,27 @@ const showChat = document.querySelector("#showChat");
 const backBtn = document.querySelector(".header__back");
 myVideo.muted = true;
 
-
 backBtn.addEventListener("click", () => {
-    document.querySelector(".main__left").style.display = "flex";
-    document.querySelector(".main__left").style.flex = "1";
-    document.querySelector(".main__right").style.display = "none";
-    document.querySelector(".header__back").style.display = "none";
-  });
-  
-  showChat.addEventListener("click", () => {
-    document.querySelector(".main__right").style.display = "flex";
-    document.querySelector(".main__right").style.flex = "1";
-    document.querySelector(".main__left").style.display = "none";
-    document.querySelector(".header__back").style.display = "block";
-  });
+  document.querySelector(".main__left").style.display = "flex";
+  document.querySelector(".main__left").style.flex = "1";
+  document.querySelector(".main__right").style.display = "none";
+  document.querySelector(".header__back").style.display = "none";
+});
+
+showChat.addEventListener("click", () => {
+  document.querySelector(".main__right").style.display = "flex";
+  document.querySelector(".main__right").style.flex = "1";
+  document.querySelector(".main__left").style.display = "none";
+  document.querySelector(".header__back").style.display = "block";
+});
 
 const user = prompt("Enter your name");
 
 var peer = new Peer(undefined, {
-    path: "/peerjs",
-    host: "/",
-    port: "3000",
+  path: "/peerjs",
+  host: "/",
+  port: "443",
 });
-
 
 //get the user video stream data
 let myVideoStream;
@@ -49,33 +46,32 @@ navigator.mediaDevices
         addVideoStream(video, userVideoStream);
       });
     });
-    //connect user video stream when they first connect
+    //connect user video stream when they join
     socket.on("user-connected", (userId) => {
       connectToNewUser(userId, stream);
     });
   });
 
 const connectToNewUser = (userId, stream) => {
-    const call = peer.call(userId, stream);
-    const video = document.createElement("video");
-    call.on("stream", (userVideoStream) => {
-        addVideoStream(video, userVideoStream);
-    });
+  const call = peer.call(userId, stream);
+  const video = document.createElement("video");
+  call.on("stream", (userVideoStream) => {
+    addVideoStream(video, userVideoStream);
+  });
 };
 
 //send invite to join room
 peer.on("open", (id) => {
-    socket.emit("join-room", ROOM_ID, id, user);
+  socket.emit("join-room", ROOM_ID, id, user);
 });
-  
-const addVideoStream = (video, stream) => {
-    video.srcObject = stream;
-    video.addEventListener("loadedmetadata", () => {
-       video.play();
-       videoGrid.append(video);
-    });
-};
 
+const addVideoStream = (video, stream) => {
+  video.srcObject = stream;
+  video.addEventListener("loadedmetadata", () => {
+    video.play();
+    videoGrid.append(video);
+  });
+};
 
 let text = document.querySelector("#chat_message");
 let send = document.getElementById("send");
@@ -98,6 +94,8 @@ text.addEventListener("keydown", (e) => {
 const inviteButton = document.querySelector("#inviteButton");
 const muteButton = document.querySelector("#muteButton");
 const stopVideo = document.querySelector("#stopVideo");
+
+//Mute Button
 muteButton.addEventListener("click", () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
@@ -112,7 +110,7 @@ muteButton.addEventListener("click", () => {
     muteButton.innerHTML = html;
   }
 });
-
+//Stop Camera Button
 stopVideo.addEventListener("click", () => {
   const enabled = myVideoStream.getVideoTracks()[0].enabled;
   if (enabled) {
@@ -128,6 +126,7 @@ stopVideo.addEventListener("click", () => {
   }
 });
 
+//Invite others to this room
 inviteButton.addEventListener("click", (e) => {
   prompt(
     "Copy this link and send it to people you want to meet with",
